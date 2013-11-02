@@ -24,6 +24,7 @@
  */
 package feathers.themes
 {
+	import feathers.controls.Alert;
 	import feathers.controls.Button;
 	import feathers.controls.ButtonGroup;
 	import feathers.controls.Callout;
@@ -58,6 +59,7 @@ package feathers.themes
 	import feathers.controls.text.StageTextTextEditor;
 	import feathers.core.DisplayListWatcher;
 	import feathers.core.FeathersControl;
+	import feathers.core.PopUpManager;
 	import feathers.display.Scale9Image;
 	import feathers.layout.HorizontalLayout;
 	import feathers.layout.VerticalLayout;
@@ -115,6 +117,8 @@ package feathers.themes
 		protected static const LIST_HEADER_BACKGROUND_COLOR:uint = 0xeeeeee;
 		protected static const PRIMARY_TEXT_COLOR:uint = 0x666666;
 		protected static const DISABLED_TEXT_COLOR:uint = 0x999999;
+		protected static const MODAL_OVERLAY_COLOR:uint = 0x666666;
+		protected static const MODAL_OVERLAY_ALPHA:Number = 0.8;
 
 		protected static const ORIGINAL_DPI_IPHONE_RETINA:int = 326;
 		protected static const ORIGINAL_DPI_IPAD_RETINA:int = 264;
@@ -130,6 +134,13 @@ package feathers.themes
 		protected static function textEditorFactory():StageTextTextEditor
 		{
 			return new StageTextTextEditor();
+		}
+
+		protected static function popUpOverlayFactory():DisplayObject
+		{
+			const quad:Quad = new Quad(100, 100, MODAL_OVERLAY_COLOR);
+			quad.alpha = MODAL_OVERLAY_ALPHA;
+			return quad;
 		}
 
 		public function MinimalMobileTheme(container:DisplayObjectContainer = null, scaleToDPI:Boolean = true)
@@ -168,6 +179,8 @@ package feathers.themes
 
 		protected var scale:Number;
 		protected var fontSize:int;
+		protected var headingFontSize:int;
+		protected var detailFontSize:int;
 		protected var inputFontSize:int;
 
 		protected var atlas:TextureAtlas;
@@ -202,6 +215,7 @@ package feathers.themes
 		protected var insetBackgroundDisabledSkinTextures:Scale9Textures;
 
 		protected var dropDownArrowTexture:Texture;
+		protected var searchIconTexture:Texture;
 
 		protected var listItemUpTextures:Scale9Textures;
 		protected var listItemDownTextures:Scale9Textures;
@@ -232,6 +246,10 @@ package feathers.themes
 		protected var bitmapFont:BitmapFont;
 		protected var primaryTextFormat:BitmapFontTextFormat;
 		protected var disabledTextFormat:BitmapFontTextFormat;
+		protected var headingTextFormat:BitmapFontTextFormat;
+		protected var headingDisabledTextFormat:BitmapFontTextFormat;
+		protected var detailTextFormat:BitmapFontTextFormat;
+		protected var detailDisabledTextFormat:BitmapFontTextFormat;
 
 		override public function dispose():void
 		{
@@ -277,8 +295,11 @@ package feathers.themes
 			//since it's a pixel font, we want a multiple of the original size,
 			//which, in this case, is 8.
 			this.fontSize = Math.max(4, roundToNearest(24 * this.scale, 8));
+			this.headingFontSize = Math.max(4, roundToNearest(32 * this.scale, 8));
+			this.detailFontSize = Math.max(4, roundToNearest(16 * this.scale, 8));
 			this.inputFontSize = 26 * this.scale;
 
+			PopUpManager.overlayFactory = popUpOverlayFactory;
 			Callout.stagePaddingTop = Callout.stagePaddingRight = Callout.stagePaddingBottom =
 				Callout.stagePaddingLeft = 16 * this.scale;
 
@@ -324,6 +345,7 @@ package feathers.themes
 			this.insetBackgroundDisabledSkinTextures = new Scale9Textures(this.atlas.getTexture("inset-background-disabled-skin"), SCALE_9_GRID);
 
 			this.dropDownArrowTexture = this.atlas.getTexture("drop-down-arrow");
+			this.searchIconTexture = this.atlas.getTexture("search-icon");
 
 			this.listItemUpTextures = new Scale9Textures(this.atlas.getTexture("list-item-up"), LIST_ITEM_SCALE_9_GRID);
 			this.listItemDownTextures = new Scale9Textures(this.atlas.getTexture("list-item-down"), LIST_ITEM_SCALE_9_GRID);
@@ -355,6 +377,10 @@ package feathers.themes
 
 			this.primaryTextFormat = new BitmapFontTextFormat(bitmapFont, this.fontSize, PRIMARY_TEXT_COLOR);
 			this.disabledTextFormat = new BitmapFontTextFormat(bitmapFont, this.fontSize, DISABLED_TEXT_COLOR);
+			this.headingTextFormat = new BitmapFontTextFormat(bitmapFont, this.headingFontSize, PRIMARY_TEXT_COLOR);
+			this.headingDisabledTextFormat = new BitmapFontTextFormat(bitmapFont, this.headingFontSize, DISABLED_TEXT_COLOR);
+			this.detailTextFormat = new BitmapFontTextFormat(bitmapFont, this.detailFontSize, PRIMARY_TEXT_COLOR);
+			this.detailDisabledTextFormat = new BitmapFontTextFormat(bitmapFont, this.detailFontSize, DISABLED_TEXT_COLOR);
 
 			FeathersControl.defaultTextRendererFactory = textRendererFactory;
 			FeathersControl.defaultTextEditorFactory = textEditorFactory;
@@ -362,8 +388,11 @@ package feathers.themes
 			this.setInitializerForClassAndSubclasses(Screen, screenInitializer);
 			this.setInitializerForClassAndSubclasses(PanelScreen, panelScreenInitializer);
 			this.setInitializerForClass(Label, labelInitializer);
+			this.setInitializerForClass(Label, headingLabelInitializer, Label.ALTERNATE_NAME_HEADING);
+			this.setInitializerForClass(Label, detailLabelInitializer, Label.ALTERNATE_NAME_DETAIL);
 			this.setInitializerForClass(ScrollText, scrollTextInitializer);
 			this.setInitializerForClass(BitmapFontTextRenderer, itemRendererAccessoryLabelInitializer, BaseDefaultItemRenderer.DEFAULT_CHILD_NAME_ACCESSORY_LABEL);
+			this.setInitializerForClass(BitmapFontTextRenderer, alertMessageInitializer, Alert.DEFAULT_CHILD_NAME_MESSAGE);
 			this.setInitializerForClass(Button, buttonInitializer);
 			this.setInitializerForClass(Button, buttonCallToActionInitializer, Button.ALTERNATE_NAME_CALL_TO_ACTION_BUTTON);
 			this.setInitializerForClass(Button, buttonQuietInitializer, Button.ALTERNATE_NAME_QUIET_BUTTON);
@@ -380,6 +409,7 @@ package feathers.themes
 			this.setInitializerForClass(Button, tabInitializer, TabBar.DEFAULT_CHILD_NAME_TAB);
 			this.setInitializerForClass(Button, pickerListButtonInitializer, PickerList.DEFAULT_CHILD_NAME_BUTTON);
 			this.setInitializerForClass(ButtonGroup, buttonGroupInitializer);
+			this.setInitializerForClass(ButtonGroup, alertButtonGroupInitializer, Alert.DEFAULT_CHILD_NAME_BUTTON_GROUP);
 			this.setInitializerForClass(Slider, sliderInitializer);
 			this.setInitializerForClass(ToggleSwitch, toggleSwitchInitializer);
 			this.setInitializerForClass(NumericStepper, numericStepperInitializer);
@@ -398,12 +428,15 @@ package feathers.themes
 			this.setInitializerForClass(PickerList, pickerListInitializer);
 			this.setInitializerForClass(Header, headerInitializer);
 			this.setInitializerForClass(Header, panelHeaderInitializer, Panel.DEFAULT_CHILD_NAME_HEADER);
+			this.setInitializerForClass(Header, panelHeaderInitializer, Alert.DEFAULT_CHILD_NAME_HEADER);
 			this.setInitializerForClass(TextInput, textInputInitializer);
+			this.setInitializerForClass(TextInput, searchTextInputInitializer, TextInput.ALTERNATE_NAME_SEARCH_TEXT_INPUT);
 			this.setInitializerForClass(TextInput, numericStepperTextInputInitializer, NumericStepper.DEFAULT_CHILD_NAME_TEXT_INPUT);
 			this.setInitializerForClass(PageIndicator, pageIndicatorInitializer);
 			this.setInitializerForClass(ProgressBar, progressBarInitializer);
 			this.setInitializerForClass(Callout, calloutInitializer);
 			this.setInitializerForClass(Panel, panelInitializer);
+			this.setInitializerForClass(Alert, alertInitializer);
 			this.setInitializerForClass(ScrollContainer, scrollContainerToolbarInitializer, ScrollContainer.ALTERNATE_NAME_TOOLBAR);
 		}
 
@@ -455,8 +488,26 @@ package feathers.themes
 			label.textRendererProperties.disabledTextFormat = this.disabledTextFormat;
 		}
 
+		protected function headingLabelInitializer(label:Label):void
+		{
+			label.textRendererProperties.textFormat = this.headingTextFormat;
+			label.textRendererProperties.disabledTextFormat = this.headingDisabledTextFormat;
+		}
+
+		protected function detailLabelInitializer(label:Label):void
+		{
+			label.textRendererProperties.textFormat = this.detailTextFormat;
+			label.textRendererProperties.disabledTextFormat = this.detailDisabledTextFormat;
+		}
+
 		protected function itemRendererAccessoryLabelInitializer(renderer:BitmapFontTextRenderer):void
 		{
+			renderer.textFormat = this.primaryTextFormat;
+		}
+
+		protected function alertMessageInitializer(renderer:BitmapFontTextRenderer):void
+		{
+			renderer.wordWrap = true;
 			renderer.textFormat = this.primaryTextFormat;
 		}
 
@@ -652,6 +703,18 @@ package feathers.themes
 		{
 			group.minWidth = 560 * this.scale;
 			group.gap = 16 * this.scale;
+		}
+
+		protected function alertButtonGroupInitializer(group:ButtonGroup):void
+		{
+			group.direction = ButtonGroup.DIRECTION_VERTICAL;
+			group.horizontalAlign = ButtonGroup.HORIZONTAL_ALIGN_JUSTIFY;
+			group.verticalAlign = ButtonGroup.VERTICAL_ALIGN_JUSTIFY;
+			group.gap = 14 * this.scale;
+			group.paddingTop = 14 * this.scale;
+			group.paddingRight = 14 * this.scale;
+			group.paddingBottom = 14 * this.scale;
+			group.paddingLeft = 14 * this.scale;
 		}
 
 		protected function sliderInitializer(slider:Slider):void
@@ -993,10 +1056,11 @@ package feathers.themes
 			header.titleProperties.disabledTextFormat = this.disabledTextFormat;
 		}
 
-		protected function textInputInitializer(input:TextInput):void
+		protected function baseTextInputInitializer(input:TextInput):void
 		{
 			input.minWidth = input.minHeight = 66 * this.scale;
 			input.minTouchWidth = input.minTouchHeight = 66 * this.scale;
+			input.gap = 8 * this.scale;
 			input.paddingTop = 14 * this.scale;
 			input.paddingBottom = 8 * this.scale;
 			input.paddingLeft = input.paddingRight = 16 * this.scale;
@@ -1018,10 +1082,26 @@ package feathers.themes
 			input.promptProperties.disabledTextFormat = this.disabledTextFormat;
 		}
 
+		protected function textInputInitializer(input:TextInput):void
+		{
+			this.baseTextInputInitializer(input);
+		}
+
+		protected function searchTextInputInitializer(input:TextInput):void
+		{
+			this.baseTextInputInitializer(input);
+
+			var searchIcon:ImageLoader = new ImageLoader();
+			searchIcon.source = this.searchIconTexture;
+			searchIcon.snapToPixels = true;
+			input.defaultIcon = searchIcon;
+		}
+
 		protected function numericStepperTextInputInitializer(input:TextInput):void
 		{
 			input.minWidth = input.minHeight = 66 * this.scale;
 			input.minTouchWidth = input.minTouchHeight = 66 * this.scale;
+			input.gap = 12 * this.scale;
 			input.paddingTop = input.paddingBottom = 14 * this.scale;
 			input.paddingLeft = input.paddingRight = 16 * this.scale;
 			input.isEditable = false;
@@ -1115,6 +1195,19 @@ package feathers.themes
 
 			panel.paddingTop = panel.paddingRight = panel.paddingBottom =
 				panel.paddingLeft = 14 * this.scale;
+		}
+
+		protected function alertInitializer(alert:Alert):void
+		{
+			const backgroundSkin:Scale9Image = new Scale9Image(this.popUpBackgroundSkinTextures, this.scale);
+			backgroundSkin.width = 20 * this.scale;
+			backgroundSkin.height = 20 * this.scale;
+			alert.backgroundSkin = backgroundSkin;
+
+			alert.paddingTop = alert.paddingBottom = 16 * this.scale;
+			alert.paddingLeft = alert.paddingRight = 32 * this.scale;
+
+			alert.maxWidth = alert.maxHeight = 560 * this.scale;
 		}
 
 		protected function scrollContainerToolbarInitializer(container:ScrollContainer):void

@@ -45,6 +45,15 @@ package feathers.controls
 	 * noButton.label = "No";
 	 * group.addChild( noButton );</listing>
 	 *
+	 * <p><strong>Beta Component:</strong> This is a new component, and its APIs
+	 * may need some changes between now and the next version of Feathers to
+	 * account for overlooked requirements or other issues. Upgrading to future
+	 * versions of Feathers may involve manual changes to your code that uses
+	 * this component. The
+	 * <a href="http://wiki.starling-framework.org/feathers/deprecation-policy">Feathers deprecation policy</a>
+	 * will not go into effect until this component's status is upgraded from
+	 * beta to stable.</p>
+	 *
 	 * @see http://wiki.starling-framework.org/feathers/layout-group
 	 * @see feathers.controls.ScrollContainer
 	 */
@@ -310,6 +319,8 @@ package feathers.controls
 				{
 					sizeInvalid = this.handleManualLayout() || sizeInvalid;
 				}
+				//final validation to avoid juggler next frame issues
+				this.validateChildren();
 			}
 
 			if(sizeInvalid || clippingInvalid)
@@ -370,6 +381,22 @@ package feathers.controls
 		/**
 		 * @private
 		 */
+		protected function validateChildren():void
+		{
+			const itemCount:int = this.items.length;
+			for(var i:int = 0; i < itemCount; i++)
+			{
+				var item:DisplayObject = this.items[i];
+				if(item is IFeathersControl)
+				{
+					IFeathersControl(item).validate();
+				}
+			}
+		}
+
+		/**
+		 * @private
+		 */
 		protected function refreshMXMLContent():void
 		{
 			if(!this._mxmlContent || this._mxmlContentIsReady)
@@ -390,7 +417,7 @@ package feathers.controls
 		 */
 		protected function refreshClipRect():void
 		{
-			if(this._clipContent && this.actualWidth > 0 && this.actualHeight > 0)
+			if(this._clipContent)
 			{
 				if(!this.clipRect)
 				{

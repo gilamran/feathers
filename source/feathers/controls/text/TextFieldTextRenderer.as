@@ -116,6 +116,11 @@ package feathers.controls.text
 		/**
 		 * @inheritDoc
 		 *
+		 * <p>In the following example, the text is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.text = "Lorem ipsum";</listing>
+		 *
 		 * @default ""
 		 */
 		public function get text():String
@@ -149,6 +154,11 @@ package feathers.controls.text
 		/**
 		 * Determines if the TextField should display the text as HTML or not.
 		 *
+		 * <p>In the following example, the text is displayed as HTML:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.isHTML = true;</listing>
+		 *
 		 * @default false
 		 *
 		 * @see flash.text.TextField#htmlText
@@ -179,8 +189,14 @@ package feathers.controls.text
 		/**
 		 * The font and styles used to draw the text.
 		 *
+		 * <p>In the following example, the text format is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.textFormat = new TextFormat( "Source Sans Pro" );</listing>
+		 *
 		 * @default null
 		 *
+		 * @see #disabledTextFormat
 		 * @see flash.text.TextFormat
 		 */
 		public function get textFormat():TextFormat
@@ -204,10 +220,64 @@ package feathers.controls.text
 		/**
 		 * @private
 		 */
+		protected var _disabledTextFormat:TextFormat;
+
+		/**
+		 * The font and styles used to draw the text when the component is disabled.
+		 *
+		 * <p>In the following example, the disabled text format is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.isEnabled = false;
+		 * textRenderer.disabledTextFormat = new TextFormat( "Source Sans Pro" );</listing>
+		 *
+		 * @default null
+		 *
+		 * @see #textFormat
+		 * @see flash.text.TextFormat
+		 */
+		public function get disabledTextFormat():TextFormat
+		{
+			return this._disabledTextFormat;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set disabledTextFormat(value:TextFormat):void
+		{
+			if(this._disabledTextFormat == value)
+			{
+				return;
+			}
+			this._disabledTextFormat = value;
+			this.invalidate(INVALIDATION_FLAG_STYLES);
+		}
+
+		/**
+		 * @private
+		 */
 		protected var _styleSheet:StyleSheet;
 
 		/**
 		 * The <code>StyleSheet</code> object to pass to the TextField.
+		 *
+		 * <p>In the following example, the text is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * var style:StyleSheet = new StyleSheet();
+		 * var heading:Object = new Object();
+		 * heading.fontWeight = "bold";
+		 * heading.color = "#FF0000";
+		 *
+		 * var body:Object = new Object();
+		 * body.fontStyle = "italic";
+		 *
+		 * style.setStyle(".heading", heading);
+		 * style.setStyle("body", body);
+		 *
+		 * textRenderer.styleSheet = style;
+		 * textRenderer.htmlText = "<body><span class='heading'>Hello </span>World...</body>";</listing>
 		 *
 		 * @default null
 		 *
@@ -238,6 +308,11 @@ package feathers.controls.text
 
 		/**
 		 * Determines if the TextField should use an embedded font or not.
+		 *
+		 * <p>In the following example, the font is embedded:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.embedFonts = true;</listing>
 		 *
 		 * @default false
 		 */
@@ -276,6 +351,11 @@ package feathers.controls.text
 		/**
 		 * Determines if the TextField wraps text to the next line.
 		 *
+		 * <p>In the following example, word wrap is enabled:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.wordWrap = true;</listing>
+		 *
 		 * @default false
 		 */
 		public function get wordWrap():Boolean
@@ -307,6 +387,11 @@ package feathers.controls.text
 		 * on sub-pixels, which often results in blurred rendering due to
 		 * texture smoothing.
 		 *
+		 * <p>In the following example, the text is not snapped to pixels:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.snapToPixels = false;</listing>
+		 *
 		 * @default true
 		 */
 		public function get snapToPixels():Boolean
@@ -329,6 +414,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the TextField property with the same name.
+		 *
+		 * <p>In the following example, the anti-alias type is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.antiAliasType = AntiAliasType.NORMAL;</listing>
 		 *
 		 * @default flash.text.AntiAliasType.ADVANCED
 		 *
@@ -360,9 +450,15 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the background is enabled:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.background = true;</listing>
+		 *
 		 * @default false
 		 *
 		 * @see flash.text.TextField#background
+		 * @see #backgroundColor
 		 */
 		public function get background():Boolean
 		{
@@ -390,9 +486,15 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the background color is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.backgroundColor = 0xff000ff;</listing>
+		 *
 		 * @default 0xffffff
 		 *
 		 * @see flash.text.TextField#backgroundColor
+		 * @see #background
 		 */
 		public function get backgroundColor():uint
 		{
@@ -420,9 +522,15 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the border is enabled:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.border = true;</listing>
+		 *
 		 * @default false
 		 *
 		 * @see flash.text.TextField#border
+		 * @see #borderColor
 		 */
 		public function get border():Boolean
 		{
@@ -450,9 +558,15 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the border color is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.borderColor = 0xff00ff;</listing>
+		 *
 		 * @default 0x000000
 		 *
 		 * @see flash.text.TextField#borderColor
+		 * @see #border
 		 */
 		public function get borderColor():uint
 		{
@@ -479,6 +593,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the TextField property with the same name.
+		 *
+		 * <p>In the following example, whitespace is condensed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.condenseWhite = true;</listing>
 		 *
 		 * @default false
 		 *
@@ -510,6 +629,11 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the text is displayed as a password:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.displayAsPassword = true;</listing>
+		 *
 		 * @default false
 		 *
 		 * @see flash.text.TextField#displayAsPassword
@@ -539,6 +663,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the TextField property with the same name.
+		 *
+		 * <p>In the following example, the grid fit type is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.gridFitType = GridFitType.SUBPIXEL;</listing>
 		 *
 		 * @default flash.text.GridFitType.PIXEL
 		 *
@@ -570,6 +699,11 @@ package feathers.controls.text
 		/**
 		 * Same as the TextField property with the same name.
 		 *
+		 * <p>In the following example, the sharpness is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.sharpness = 200;</listing>
+		 *
 		 * @default 0
 		 *
 		 * @see flash.text.TextField#sharpness
@@ -599,6 +733,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the TextField property with the same name.
+		 *
+		 * <p>In the following example, the thickness is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textRenderer.thickness = 100;</listing>
 		 *
 		 * @default 0
 		 *
@@ -758,6 +897,7 @@ package feathers.controls.text
 		{
 			const stylesInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_STYLES);
 			const dataInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_DATA);
+			const stateInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_STATE);
 
 			if(stylesInvalid)
 			{
@@ -773,11 +913,15 @@ package feathers.controls.text
 				this.textField.thickness = this._thickness;
 			}
 
-			if(dataInvalid || stylesInvalid)
+			if(dataInvalid || stylesInvalid || stateInvalid)
 			{
 				this.textField.wordWrap = this._wordWrap;
 				this.textField.embedFonts = this._embedFonts;
-				if(this._textFormat)
+				if(!this._isEnabled && this._disabledTextFormat)
+				{
+					this.textField.defaultTextFormat = this._disabledTextFormat;
+				}
+				else if(this._textFormat)
 				{
 					this.textField.defaultTextFormat = this._textFormat;
 				}
@@ -818,7 +962,11 @@ package feathers.controls.text
 				//again, for some reason, it reports the correct width value.
 				var hackWorkaround:Number = this.textField.width;
 
-				newWidth = this.textField.width;
+				//we use Math.ceil() as another workaround. even though we're
+				//setting width to exact same value reported here when we turn
+				//on word wrap in a moment, sometimes the last character moves
+				//to the next line. Bumping up to a whole pixel seems to help.
+				newWidth = Math.ceil(this.textField.width);
 				if(newWidth < this._minWidth)
 				{
 					newWidth = this._minWidth;
@@ -834,7 +982,7 @@ package feathers.controls.text
 			var newHeight:Number = this.explicitHeight;
 			if(needsHeight)
 			{
-				newHeight = this.textField.height;
+				newHeight = Math.ceil(this.textField.height);
 				if(newHeight < this._minHeight)
 				{
 					newHeight = this._minHeight;
@@ -957,7 +1105,7 @@ package feathers.controls.text
 		 */
 		protected function refreshSnapshot():void
 		{
-			if(this.textField.width == 0 || this.textField.height == 0)
+			if(this._snapshotWidth == 0 || this._snapshotHeight == 0)
 			{
 				return;
 			}

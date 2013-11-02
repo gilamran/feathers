@@ -925,8 +925,17 @@ package feathers.controls
 		 */
 		override public function dispose():void
 		{
-			this.closePopUpList();
-			this.list.dispose();
+			if(this.list)
+			{
+				this.closePopUpList();
+				this.list.dispose();
+				this.list = null;
+			}
+			if(this._popUpContentManager)
+			{
+				this._popUpContentManager.dispose();
+				this._popUpContentManager = null;
+			}
 			super.dispose();
 		}
 		
@@ -1195,6 +1204,9 @@ package feathers.controls
 		{
 			this.button.width = this.actualWidth;
 			this.button.height = this.actualHeight;
+
+			//final validation to avoid juggler next frame issues
+			this.button.validate();
 		}
 		
 		/**

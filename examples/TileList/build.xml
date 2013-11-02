@@ -25,7 +25,6 @@
 		<echo message="Building TileListWeb.swf"/>
 		<java jar="${mxmlc}" dir="${basedir}" fork="true" failonerror="true">
 			<arg value="-load-config=${flashplayer.config}"/>
-			<arg value="-target-player=${player.version}"/>
 			<arg value="-swf-version=${swf.version}"/>
 			<arg value="-frame=two,feathers.examples.tileList.Main"/>
 			<arg value="-source-path+=source"/>
@@ -40,7 +39,6 @@
 		<echo message="Building TileList.swf"/>
 		<java jar="${mxmlc}" dir="${basedir}" fork="true" failonerror="true">
 			<arg value="-load-config=${airmobile.config}"/>
-			<arg value="-target-player=${player.version}"/>
 			<arg value="-swf-version=${swf.version}"/>
 			<arg value="-source-path+=source"/>
 			<arg value="-source-path+=${starling.root}"/>
@@ -94,6 +92,26 @@
 			<arg value="-C"/>
 			<arg value="${output.path}"/>
 			<arg value="TileList.swf"/>
+		</java>
+	</target>
+	<target name="install-android">
+		<echo message="Installing TileList.apk"/>
+		<java jar="${adt}" dir="${basedir}" fork="true" failonerror="true">
+			<arg value="-installApp"/>
+			<arg value="-platform"/>
+			<arg value="android"/>
+			<arg value="-package"/>
+			<arg value="${output.path}/TileList.apk"/>
+		</java>
+	</target>
+	<target name="install-ios">
+		<echo message="Installing TileList.ipa"/>
+		<java jar="${adt}" dir="${basedir}" fork="true" failonerror="true">
+			<arg value="-installApp"/>
+			<arg value="-platform"/>
+			<arg value="iOS"/>
+			<arg value="-package"/>
+			<arg value="${output.path}/TileList.ipa"/>
 		</java>
 	</target>
 </project>

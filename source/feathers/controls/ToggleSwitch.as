@@ -8,6 +8,7 @@ accordance with the terms of the accompanying license agreement.
 package feathers.controls
 {
 	import feathers.core.FeathersControl;
+	import feathers.core.IFeathersControl;
 	import feathers.core.IFocusDisplayObject;
 	import feathers.core.ITextRenderer;
 	import feathers.core.IToggle;
@@ -1937,7 +1938,7 @@ package feathers.controls
 			}
 			this.offTextRenderer = ITextRenderer(offLabelFactory());
 			this.offTextRenderer.nameList.add(this.offLabelName);
-			if(this.offTextRenderer is FeathersControl)
+			if(this.offTextRenderer is IFeathersControl)
 			{
 				FeathersControl(this.offTextRenderer).clipRect = new Rectangle();
 			}
@@ -1954,7 +1955,7 @@ package feathers.controls
 			}
 			this.onTextRenderer = ITextRenderer(onLabelFactory());
 			this.onTextRenderer.nameList.add(this.onLabelName);
-			if(this.onTextRenderer is FeathersControl)
+			if(this.onTextRenderer is IFeathersControl)
 			{
 				FeathersControl(this.onTextRenderer).clipRect = new Rectangle();
 			}
@@ -1981,7 +1982,7 @@ package feathers.controls
 				labelHeight = Math.max(this.onTextRenderer.baseline, this.offTextRenderer.baseline);
 			}
 
-			if(this.onTextRenderer is FeathersControl)
+			if(this.onTextRenderer is IFeathersControl)
 			{
 				var clipRect:Rectangle = FeathersControl(this.onTextRenderer).clipRect;
 				clipRect.width = maxLabelWidth;
@@ -1991,7 +1992,7 @@ package feathers.controls
 
 			this.onTextRenderer.y = (this.actualHeight - labelHeight) / 2;
 
-			if(this.offTextRenderer is FeathersControl)
+			if(this.offTextRenderer is IFeathersControl)
 			{
 				clipRect = FeathersControl(this.offTextRenderer).clipRect;
 				clipRect.width = maxLabelWidth;
@@ -2013,7 +2014,7 @@ package feathers.controls
 			const thumbOffset:Number = this.thumb.x - this._paddingLeft;
 
 			var onScrollOffset:Number = maxLabelWidth - thumbOffset - (maxLabelWidth - this.onTextRenderer.width) / 2;
-			if(this.onTextRenderer is FeathersControl)
+			if(this.onTextRenderer is IFeathersControl)
 			{
 				const displayOnLabelRenderer:FeathersControl = FeathersControl(this.onTextRenderer);
 				var currentClipRect:Rectangle = displayOnLabelRenderer.clipRect;
@@ -2023,7 +2024,7 @@ package feathers.controls
 			this.onTextRenderer.x = this._paddingLeft - onScrollOffset;
 
 			var offScrollOffset:Number = -thumbOffset - (maxLabelWidth - this.offTextRenderer.width) / 2;
-			if(this.offTextRenderer is FeathersControl)
+			if(this.offTextRenderer is IFeathersControl)
 			{
 				const displayOffLabelRenderer:FeathersControl = FeathersControl(this.offTextRenderer);
 				currentClipRect = displayOffLabelRenderer.clipRect;
@@ -2222,14 +2223,14 @@ package feathers.controls
 			this.onTrack.y = 0;
 			this.onTrack.width = this.thumb.x + this.thumb.width / 2;
 			this.onTrack.height = this.actualHeight;
-			//validation is required for the toggle tween. otherwise the tracks
-			//don't appear correctly until the next frame.
-			this.onTrack.validate();
 
 			this.offTrack.x = this.onTrack.width;
 			this.offTrack.y = 0;
 			this.offTrack.width = this.actualWidth - this.offTrack.x;
 			this.offTrack.height = this.actualHeight;
+
+			//final validation to avoid juggler next frame issues
+			this.onTrack.validate();
 			this.offTrack.validate();
 		}
 
@@ -2242,6 +2243,9 @@ package feathers.controls
 			this.onTrack.y = 0;
 			this.onTrack.width = this.actualWidth;
 			this.onTrack.height = this.actualHeight;
+
+			//final validation to avoid juggler next frame issues
+			this.onTrack.validate();
 		}
 
 		/**

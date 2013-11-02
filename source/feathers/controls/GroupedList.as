@@ -127,7 +127,7 @@ package feathers.controls
 		 *
 		 * <p>An alternate name should always be added to a component's
 		 * <code>nameList</code> before the component is added to the stage for
-		 * the first time.</p>
+		 * the first time. If it is added later, it will be ignored.</p>
 		 *
 		 * <p>In the following example, the inset style is applied to a grouped
 		 * list:</p>
@@ -374,7 +374,10 @@ package feathers.controls
 		protected var _dataProvider:HierarchicalCollection;
 
 		/**
-		 * The collection of data displayed by the list.
+		 * The collection of data displayed by the list. Changing this property
+		 * to a new value is considered a drastic change to the list's data, so
+		 * the horizontal and vertical scroll positions will be reset, and the
+		 * list's selection will be cleared.
 		 *
 		 * <p>The following example passes in a data provider and tells the item
 		 * renderer how to interpret the data:</p>
@@ -432,6 +435,10 @@ package feathers.controls
 		 * descriptors may be implemented with the
 		 * <code>IHierarchicalCollectionDataDescriptor</code> interface.</p>
 		 *
+		 * <p><em>Warning:</em> A Grouped List's data provider cannot contain
+		 * duplicate items. To display the same item in multiple item renderers,
+		 * you must use separate objects with the same properties.</p>
+		 *
 		 * @default null
 		 *
 		 * @see feathers.data.HierarchicalCollection
@@ -467,6 +474,9 @@ package feathers.controls
 			//the data is probably completely different
 			this.horizontalScrollPosition = 0;
 			this.verticalScrollPosition = 0;
+
+			//clear the selection for the same reason
+			this.setSelectedLocation(-1, -1);
 
 			this.invalidate(INVALIDATION_FLAG_DATA);
 		}
@@ -1435,43 +1445,6 @@ package feathers.controls
 		/**
 		 * @private
 		 */
-		protected var _typicalHeader:Object = null;
-
-		/**
-		 * Used to auto-size the grouped list. If the list's width or height is
-		 * <code>NaN</code>, the grouped list will try to automatically pick an
-		 * ideal size. This data is used in that process to create a sample
-		 * header renderer.
-		 *
-		 * <p>The following example provides a typical header:</p>
-		 *
-		 * <listing version="3.0">
-		 * list.typicalHeader = { text: "A typical header" };
-		 * list.headerRendererProperties.contentLabelField = "text";</listing>
-		 *
-		 * @default null
-		 */
-		public function get typicalHeader():Object
-		{
-			return this._typicalHeader;
-		}
-
-		/**
-		 * @private
-		 */
-		public function set typicalHeader(value:Object):void
-		{
-			if(this._typicalHeader == value)
-			{
-				return;
-			}
-			this._typicalHeader = value;
-			this.invalidate(INVALIDATION_FLAG_STYLES);
-		}
-
-		/**
-		 * @private
-		 */
 		protected var _headerRendererName:String = DEFAULT_CHILD_NAME_HEADER_RENDERER;
 
 		/**
@@ -1680,43 +1653,6 @@ package feathers.controls
 			}
 
 			this._footerRendererFactory = value;
-			this.invalidate(INVALIDATION_FLAG_STYLES);
-		}
-
-		/**
-		 * @private
-		 */
-		protected var _typicalFooter:Object = null;
-
-		/**
-		 * Used to auto-size the grouped list. If the grouped list's width or
-		 * height is <code>NaN</code>, the grouped list will try to
-		 * automatically pick an ideal size. This data is used in that process
-		 * to create a sample footer renderer.
-		 *
-		 * <p>The following example provides a typical footer:</p>
-		 *
-		 * <listing version="3.0">
-		 * list.typicalHeader = { text: "A typical footer" };
-		 * list.footerRendererProperties.contentLabelField = "text";</listing>
-		 *
-		 * @default null
-		 */
-		public function get typicalFooter():Object
-		{
-			return this._typicalFooter;
-		}
-
-		/**
-		 * @private
-		 */
-		public function set typicalFooter(value:Object):void
-		{
-			if(this._typicalFooter == value)
-			{
-				return;
-			}
-			this._typicalFooter = value;
 			this.invalidate(INVALIDATION_FLAG_STYLES);
 		}
 
@@ -2050,6 +1986,10 @@ package feathers.controls
 		 */
 		override public function dispose():void
 		{
+			//clearing selection now so that the data provider setter won't
+			//cause a selection change that triggers events.
+			this._selectedGroupIndex = -1;
+			this._selectedItemIndex = -1;
 			this.dataProvider = null;
 			super.dispose();
 		}
@@ -2229,12 +2169,12 @@ package feathers.controls
 			this.dataViewPort.isSelectable = this._isSelectable;
 			this.dataViewPort.setSelectedLocation(this._selectedGroupIndex, this._selectedItemIndex);
 			this.dataViewPort.dataProvider = this._dataProvider;
+			this.dataViewPort.typicalItem = this._typicalItem;
 
 			this.dataViewPort.itemRendererType = this._itemRendererType;
 			this.dataViewPort.itemRendererFactory = this._itemRendererFactory;
 			this.dataViewPort.itemRendererProperties = this._itemRendererProperties;
 			this.dataViewPort.itemRendererName = this._itemRendererName;
-			this.dataViewPort.typicalItem = this._typicalItem;
 
 			this.dataViewPort.firstItemRendererType = this._firstItemRendererType;
 			this.dataViewPort.firstItemRendererFactory = this._firstItemRendererFactory;
@@ -2252,13 +2192,11 @@ package feathers.controls
 			this.dataViewPort.headerRendererFactory = this._headerRendererFactory;
 			this.dataViewPort.headerRendererProperties = this._headerRendererProperties;
 			this.dataViewPort.headerRendererName = this._headerRendererName;
-			this.dataViewPort.typicalHeader = this._typicalHeader;
 
 			this.dataViewPort.footerRendererType = this._footerRendererType;
 			this.dataViewPort.footerRendererFactory = this._footerRendererFactory;
 			this.dataViewPort.footerRendererProperties = this._footerRendererProperties;
 			this.dataViewPort.footerRendererName = this._footerRendererName;
-			this.dataViewPort.typicalFooter = this._typicalFooter;
 
 			this.dataViewPort.layout = this._layout;
 		}

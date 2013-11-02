@@ -109,8 +109,6 @@ package feathers.examples.componentsExplorer.screens
 			}
 			this._list.dataProvider = new HierarchicalCollection(groups);
 			this._list.typicalItem = { text: "Item 1000" };
-			this._list.typicalHeader = "Group 10";
-			this._list.typicalFooter = "Footer 10";
 			this._list.isSelectable = this.settings.isSelectable;
 			this._list.hasElasticEdges = this.settings.hasElasticEdges;
 			this._list.clipContent = false;
@@ -137,7 +135,7 @@ package feathers.examples.componentsExplorer.screens
 				this._backButton = new Button();
 				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
-				this._backButton.addEventListener(Event.TRIGGERED, backButtontriggeredHandler);
+				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 
 				this.headerProperties.leftItems = new <DisplayObject>
 				[
@@ -149,7 +147,7 @@ package feathers.examples.componentsExplorer.screens
 
 			this._settingsButton = new Button();
 			this._settingsButton.label = "Settings";
-			this._settingsButton.addEventListener(Event.TRIGGERED, settingsButtontriggeredHandler);
+			this._settingsButton.addEventListener(Event.TRIGGERED, settingsButton_triggeredHandler);
 
 			this.headerProperties.rightItems = new <DisplayObject>
 			[
@@ -162,12 +160,12 @@ package feathers.examples.componentsExplorer.screens
 			this.dispatchEventWith(Event.COMPLETE);
 		}
 		
-		private function backButtontriggeredHandler(event:Event):void
+		private function backButton_triggeredHandler(event:Event):void
 		{
 			this.onBackButton();
 		}
 
-		private function settingsButtontriggeredHandler(event:Event):void
+		private function settingsButton_triggeredHandler(event:Event):void
 		{
 			this.dispatchEventWith(SHOW_SETTINGS);
 		}

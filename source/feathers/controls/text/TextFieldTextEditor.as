@@ -10,6 +10,9 @@ package feathers.controls.text
 	import feathers.core.FeathersControl;
 	import feathers.core.ITextEditor;
 	import feathers.events.FeathersEventType;
+	import feathers.utils.geom.matrixToRotation;
+	import feathers.utils.geom.matrixToScaleX;
+	import feathers.utils.geom.matrixToScaleY;
 
 	import flash.display.BitmapData;
 	import flash.events.FocusEvent;
@@ -170,6 +173,11 @@ package feathers.controls.text
 		/**
 		 * @inheritDoc
 		 *
+		 * <p>In the following example, the text is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.text = "Lorem ipsum";</listing>
+		 *
 		 * @default ""
 		 */
 		public function get text():String
@@ -204,6 +212,11 @@ package feathers.controls.text
 		/**
 		 * The format of the text, such as font and styles.
 		 *
+		 * <p>In the following example, the text format is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.textFormat = new TextFormat( "Source Sans Pro" );;</listing>
+		 *
 		 * @default null
 		 */
 		public function get textFormat():TextFormat
@@ -231,6 +244,11 @@ package feathers.controls.text
 
 		/**
 		 * Determines if the TextField should use an embedded font or not.
+		 *
+		 * <p>In the following example, the font is embedded:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.embedFonts = true;</listing>
 		 *
 		 * @default false
 		 */
@@ -260,6 +278,11 @@ package feathers.controls.text
 		/**
 		 * Determines if the TextField wraps text to the next line.
 		 *
+		 * <p>In the following example, word wrap is enabled:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.wordWrap = true;</listing>
+		 *
 		 * @default false
 		 */
 		public function get wordWrap():Boolean
@@ -287,6 +310,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the <code>TextField</code> property with the same name.
+		 *
+		 * <p>In the following example, multiline is enabled:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.multiline = true;</listing>
 		 *
 		 * @default false
 		 */
@@ -316,6 +344,11 @@ package feathers.controls.text
 		/**
 		 * Determines if the TextField should display the text as HTML or not.
 		 *
+		 * <p>In the following example, the text is displayed as HTML:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.isHTML = true;</listing>
+		 *
 		 * @default false
 		 */
 		public function get isHTML():Boolean
@@ -343,6 +376,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the <code>flash.text.TextField</code> property with the same name.
+		 *
+		 * <p>In the following example, the selection is always shown:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.alwaysShowSelection = true;</listing>
 		 *
 		 * @default false
 		 */
@@ -372,6 +410,11 @@ package feathers.controls.text
 		/**
 		 * Same as the <code>flash.text.TextField</code> property with the same name.
 		 *
+		 * <p>In the following example, the text is displayed as as password:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.fontWeight = FontWeight.BOLD;</listing>
+		 *
 		 * @default false
 		 */
 		public function get displayAsPassword():Boolean
@@ -399,6 +442,11 @@ package feathers.controls.text
 
 		/**
 		 * Same as the <code>flash.text.TextField</code> property with the same name.
+		 *
+		 * <p>In the following example, the maximum character count is changed:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.maxChars = 10;</listing>
 		 *
 		 * @default 0
 		 */
@@ -428,6 +476,11 @@ package feathers.controls.text
 		/**
 		 * Same as the <code>flash.text.TextField</code> property with the same name.
 		 *
+		 * <p>In the following example, the text is restricted to numbers:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.restrict = "0-9";</listing>
+		 *
 		 * @default null
 		 */
 		public function get restrict():String
@@ -456,6 +509,11 @@ package feathers.controls.text
 		/**
 		 * Determines if the text input is editable. If the text input is not
 		 * editable, it will still appear enabled.
+		 *
+		 * <p>In the following example, the text is not editable:</p>
+		 *
+		 * <listing version="3.0">
+		 * textEditor.isEditable = false;</listing>
 		 *
 		 * @default true
 		 */
@@ -847,6 +905,9 @@ package feathers.controls.text
 			{
 				this.refreshSnapshotParameters();
 				this.refreshTextFieldSize();
+				this.getTransformationMatrix(this.stage, HELPER_MATRIX);
+				this.textField.scaleX = matrixToScaleX(HELPER_MATRIX);
+				this.textField.scaleY = matrixToScaleY(HELPER_MATRIX);
 			}
 
 			this.checkIfNewSnapshotIsNeeded();
@@ -878,8 +939,10 @@ package feathers.controls.text
 			this._textFieldOffsetY = 0;
 			this._textFieldClipRect.x = 0;
 			this._textFieldClipRect.y = 0;
-			this._textFieldClipRect.width = this.actualWidth;
-			this._textFieldClipRect.height = this.actualHeight;
+
+			this.getTransformationMatrix(this.stage, HELPER_MATRIX);
+			this._textFieldClipRect.width = this.actualWidth * Starling.contentScaleFactor * matrixToScaleX(HELPER_MATRIX);
+			this._textFieldClipRect.height = this.actualHeight * Starling.contentScaleFactor * matrixToScaleY(HELPER_MATRIX);
 		}
 
 		/**
@@ -898,6 +961,7 @@ package feathers.controls.text
 				this.textField.x = Math.round(starlingViewPort.x + (HELPER_POINT.x * Starling.contentScaleFactor));
 				this.textField.y = Math.round(starlingViewPort.y + (HELPER_POINT.y * Starling.contentScaleFactor));
 			}
+			this.textField.rotation = matrixToRotation(HELPER_MATRIX) * 180 / Math.PI;
 
 			if(this.textSnapshot)
 			{
@@ -911,8 +975,8 @@ package feathers.controls.text
 		 */
 		protected function checkIfNewSnapshotIsNeeded():void
 		{
-			this._snapshotWidth = getNextPowerOfTwo(this._textFieldClipRect.width * Starling.contentScaleFactor);
-			this._snapshotHeight = getNextPowerOfTwo(this._textFieldClipRect.height * Starling.contentScaleFactor);
+			this._snapshotWidth = getNextPowerOfTwo(this._textFieldClipRect.width);
+			this._snapshotHeight = getNextPowerOfTwo(this._textFieldClipRect.height);
 			const textureRoot:ConcreteTexture = this.textSnapshot ? this.textSnapshot.texture.root : null;
 			this._needsNewTexture = this._needsNewTexture || !this.textSnapshot || this._snapshotWidth != textureRoot.width || this._snapshotHeight != textureRoot.height;
 		}
@@ -955,9 +1019,12 @@ package feathers.controls.text
 			{
 				return;
 			}
+			this.getTransformationMatrix(this.stage, HELPER_MATRIX);
+			var globalScaleX:Number = matrixToScaleX(HELPER_MATRIX);
+			var globalScaleY:Number = matrixToScaleY(HELPER_MATRIX);
 			HELPER_MATRIX.identity();
 			HELPER_MATRIX.translate(this._textFieldOffsetX, this._textFieldOffsetY);
-			HELPER_MATRIX.scale(Starling.contentScaleFactor, Starling.contentScaleFactor);
+			HELPER_MATRIX.scale(Starling.contentScaleFactor * globalScaleX, Starling.contentScaleFactor * globalScaleY);
 			var bitmapData:BitmapData = new BitmapData(this._snapshotWidth, this._snapshotHeight, true, 0x00ff00ff);
 			bitmapData.draw(this.textField, HELPER_MATRIX, null, null, this._textFieldClipRect);
 			var newTexture:Texture;
@@ -986,6 +1053,9 @@ package feathers.controls.text
 					existingTexture.root.uploadBitmapData(bitmapData);
 				}
 			}
+			this.getTransformationMatrix(this.stage, HELPER_MATRIX);
+			this.textSnapshot.scaleX = 1 / matrixToScaleX(HELPER_MATRIX);
+			this.textSnapshot.scaleY = 1 / matrixToScaleY(HELPER_MATRIX);
 			bitmapData.dispose();
 			this._needsNewTexture = false;
 		}
@@ -1036,7 +1106,8 @@ package feathers.controls.text
 			this.refreshSnapshot();
 			if(this.textSnapshot)
 			{
-				this.textSnapshot.visible = this._text.length > 0;
+				this.textSnapshot.visible = !this._textFieldHasFocus;
+				this.textSnapshot.alpha = this._text.length > 0 ? 1 : 0;
 			}
 		}
 

@@ -9,6 +9,7 @@ package feathers.controls
 {
 	import feathers.core.FeathersControl;
 	import feathers.core.IFeathersControl;
+	import feathers.events.ExclusiveTouch;
 	import feathers.events.FeathersEventType;
 	import feathers.system.DeviceCapabilities;
 	import feathers.utils.display.getDisplayObjectDepthFromStage;
@@ -32,6 +33,25 @@ package feathers.controls
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
+
+	/**
+	 * Dispatched when the user starts dragging the content to open or close a
+	 * drawer.
+	 *
+	 * @eventType feathers.events.FeathersEventType.BEGIN_INTERACTION
+	 * @see feathers.events.FeathersEventType.END_INTERACTION
+	 */
+	[Event(name="beginInteraction",type="starling.events.Event")]
+
+	/**
+	 * Dispatched when the user stops dragging the content to open or close a
+	 * drawer. The drawer may continue opening or closing after this event is
+	 * dispatched if the user interaction has also triggered an animation.
+	 *
+	 * @eventType feathers.events.FeathersEventType.END_INTERACTION
+	 * @see feathers.events.FeathersEventType.BEGIN_INTERACTION
+	 */
+	[Event(name="endInteraction",type="starling.events.Event")]
 
 	/**
 	 * A container that displays primary content in the center surrounded by
@@ -62,6 +82,15 @@ package feathers.controls
 	 * component dispatches an event of type <code>Event.OPEN</code> when it
 	 * wants to display the slide out the <code>List</code> that is used as
 	 * the left drawer.</p>
+	 *
+	 * <p><strong>Beta Component:</strong> This is a new component, and its APIs
+	 * may need some changes between now and the next version of Feathers to
+	 * account for overlooked requirements or other issues. Upgrading to future
+	 * versions of Feathers may involve manual changes to your code that uses
+	 * this component. The
+	 * <a href="http://wiki.starling-framework.org/feathers/deprecation-policy">Feathers deprecation policy</a>
+	 * will not go into effect until this component's status is upgraded from
+	 * beta to stable.</p>
 	 *
 	 * @see http://wiki.starling-framework.org/feathers/drawers
 	 */
@@ -1309,9 +1338,9 @@ package feathers.controls
 		 * <p>In the following example, the open gesture edge size customized:</p>
 		 *
 		 * <listing version="3.0">
-		 * scroller.openGestureEdgeSize = ;</listing>
+		 * scroller.openGestureEdgeSize = 0.25;</listing>
 		 *
-		 * @default
+		 * @default 0.1
 		 */
 		public function get openGestureEdgeSize():Number
 		{
@@ -1688,7 +1717,12 @@ package feathers.controls
 				}
 				return result;
 			}
-			return null;
+			//we want to register touches in our hitArea as a last resort
+			if(forTouch && (!this.visible || !this.touchable))
+			{
+				return null;
+			}
+			return this._hitArea.contains(localPoint.x, localPoint.y) ? this : null;
 		}
 
 		/**
@@ -1810,10 +1844,16 @@ package feathers.controls
 		{
 			var sizeInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_SIZE);
 			var dataInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_DATA);
+			var layoutInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_LAYOUT);
 
 			if(dataInvalid)
 			{
 				this.refreshCurrentEventTarget();
+			}
+
+			if(sizeInvalid || layoutInvalid)
+			{
+				this.refreshDrawerStates();
 			}
 
 			sizeInvalid = this.autoSizeIfNeeded() || sizeInvalid;
@@ -2010,6 +2050,12 @@ package feathers.controls
 			{
 				this._content.width = contentWidth;
 				this._content.height = contentHeight;
+
+				//final validation to avoid juggler next frame issues
+				if(this._content is IFeathersControl)
+				{
+					IFeathersControl(this._content).validate();
+				}
 			}
 
 			if(this._topDrawer)
@@ -2031,15 +2077,22 @@ package feathers.controls
 				this._topDrawer.y = topDrawerY;
 				this._topDrawer.width = this.actualWidth;
 				this._topDrawer.visible = isTopDrawerOpen || isTopDrawerDocked;
+
+				//final validation to avoid juggler next frame issues
+				if(this._topDrawer is IFeathersControl)
+				{
+					IFeathersControl(this._topDrawer).validate();
+				}
 			}
 
 			if(this._rightDrawer)
 			{
-				this._rightDrawer.x = this.actualWidth - rightDrawerWidth;
+				var rightDrawerX:Number = this.actualWidth - rightDrawerWidth;
 				var rightDrawerY:Number = 0;
 				var rightDrawerHeight:Number = this.actualHeight;
 				if(isRightDrawerDocked)
 				{
+					rightDrawerX = this._content.x + this._content.width;
 					if(isTopDrawerDocked)
 					{
 						rightDrawerHeight -= topDrawerHeight;
@@ -2050,22 +2103,40 @@ package feathers.controls
 					}
 					rightDrawerY = this._content.y;
 				}
+				this._rightDrawer.x = rightDrawerX;
 				this._rightDrawer.y = rightDrawerY;
 				this._rightDrawer.height = rightDrawerHeight;
 				this._rightDrawer.visible = isRightDrawerOpen || isRightDrawerDocked;
+
+				//final validation to avoid juggler next frame issues
+				if(this._rightDrawer is IFeathersControl)
+				{
+					IFeathersControl(this._rightDrawer).validate();
+				}
 			}
 
 			if(this._bottomDrawer)
 			{
 				var bottomDrawerX:Number = 0;
-				if(isBottomDrawerDocked && !isLeftDrawerDocked)
+				var bottomDrawerY:Number = this.actualHeight - bottomDrawerHeight;
+				if(isBottomDrawerDocked)
 				{
-					bottomDrawerX = this._content.x;
+					if(!isLeftDrawerDocked)
+					{
+						bottomDrawerX = this._content.x;
+					}
+					bottomDrawerY = this._content.y + this._content.height;
 				}
 				this._bottomDrawer.x = bottomDrawerX;
-				this._bottomDrawer.y = this.actualHeight - bottomDrawerHeight;
+				this._bottomDrawer.y = bottomDrawerY;
 				this._bottomDrawer.width = this.actualWidth;
 				this._bottomDrawer.visible = isBottomDrawerOpen || isBottomDrawerDocked;
+
+				//final validation to avoid juggler next frame issues
+				if(this._bottomDrawer is IFeathersControl)
+				{
+					IFeathersControl(this._bottomDrawer).validate();
+				}
 			}
 
 			if(this._leftDrawer)
@@ -2093,6 +2164,12 @@ package feathers.controls
 				this._leftDrawer.y = leftDrawerY;
 				this._leftDrawer.height = leftDrawerHeight;
 				this._leftDrawer.visible = isLeftDrawerOpen || isLeftDrawerDocked;
+
+				//final validation to avoid juggler next frame issues
+				if(this._leftDrawer is IFeathersControl)
+				{
+					IFeathersControl(this._leftDrawer).validate();
+				}
 			}
 		}
 
@@ -2362,6 +2439,29 @@ package feathers.controls
 		/**
 		 * @private
 		 */
+		protected function refreshDrawerStates():void
+		{
+			if(this.isTopDrawerDocked)
+			{
+				this._isTopDrawerOpen = false;
+			}
+			if(this.isRightDrawerDocked)
+			{
+				this._isRightDrawerOpen = false;
+			}
+			if(this.isBottomDrawerDocked)
+			{
+				this._isBottomDrawerOpen = false;
+			}
+			if(this.isLeftDrawerDocked)
+			{
+				this._isLeftDrawerOpen = false;
+			}
+		}
+
+		/**
+		 * @private
+		 */
 		protected function handleTapToClose(touch:Touch):void
 		{
 			touch.getLocation(this.stage, HELPER_POINT);
@@ -2397,6 +2497,13 @@ package feathers.controls
 		 */
 		protected function handleTouchBegan(touch:Touch):void
 		{
+			var exclusiveTouch:ExclusiveTouch = ExclusiveTouch.forStage(this.stage);
+			if(exclusiveTouch.getClaim(touch.id))
+			{
+				//already claimed
+				return;
+			}
+
 			touch.getLocation(this, HELPER_POINT);
 			var localX:Number = HELPER_POINT.x;
 			var localY:Number = HELPER_POINT.y;
@@ -2456,22 +2563,15 @@ package feathers.controls
 					}
 				}
 			}
-			else //a drawer is open, let's only work with touches over the content
+			else if(touch.target != this && !touch.isTouching(this._content) &&
+				!(this.isTopDrawerDocked && touch.isTouching(this._topDrawer)) &&
+				!(this.isRightDrawerDocked && touch.isTouching(this._rightDrawer)) &&
+				!(this.isBottomDrawerDocked && touch.isTouching(this._bottomDrawer)) &&
+				!(this.isLeftDrawerDocked && touch.isTouching(this._leftDrawer)))
 			{
-				//not testing for touch because we just want to know if we're
-				//over the content or one of its children.
-				var hitTarget:DisplayObject = this.hitTest(touch.getLocation(this), false);
-				if(this._content is DisplayObjectContainer)
-				{
-					if(!DisplayObjectContainer(this._content).contains(hitTarget))
-					{
-						return;
-					}
-				}
-				else if(this._content != hitTarget)
-				{
-					return;
-				}
+				//a drawer is open, let's only work with touches over the
+				//content or other drawers that are docked
+				return;
 			}
 
 			this.touchPointID = touch.id;
@@ -2487,6 +2587,8 @@ package feathers.controls
 			this._isDraggingRightDrawer = false;
 			this._isDraggingBottomDrawer = false;
 			this._isDraggingLeftDrawer = false;
+
+			exclusiveTouch.addEventListener(Event.CHANGE, exclusiveTouch_changeHandler);
 		}
 
 		/**
@@ -2747,31 +2849,36 @@ package feathers.controls
 			var verticalInchesMoved:Number = (this._currentTouchY - this._startTouchY) / (DeviceCapabilities.dpi / Starling.contentScaleFactor);
 			if(this.isLeftDrawerOpen && horizontalInchesMoved <= -this._minimumDragDistance)
 			{
-				this._startTouchX = this._currentTouchX;
-				this._isDraggingLeftDrawer = true;
 				this._isDragging = true;
+				this._isDraggingLeftDrawer = true;
 				this.applyLeftClipRect();
 			}
 			else if(this.isRightDrawerOpen && horizontalInchesMoved >= this._minimumDragDistance)
 			{
-				this._startTouchX = this._currentTouchX;
-				this._isDraggingRightDrawer = true;
 				this._isDragging = true;
+				this._isDraggingRightDrawer = true;
 				this.applyRightClipRect();
 			}
 			else if(this.isTopDrawerOpen && verticalInchesMoved <= -this._minimumDragDistance)
 			{
-				this._startTouchY = this._currentTouchY;
-				this._isDraggingTopDrawer = true;
 				this._isDragging = true;
+				this._isDraggingTopDrawer = true;
 				this.applyTopClipRect();
 			}
 			else if(this.isBottomDrawerOpen && verticalInchesMoved >= this._minimumDragDistance)
 			{
-				this._startTouchY = this._currentTouchY;
-				this._isDraggingBottomDrawer = true;
 				this._isDragging = true;
+				this._isDraggingBottomDrawer = true;
 				this.applyBottomClipRect();
+			}
+
+			if(this._isDragging)
+			{
+				this._startTouchY = this._currentTouchY;
+				var exclusiveTouch:ExclusiveTouch = ExclusiveTouch.forStage(this.stage);
+				exclusiveTouch.removeEventListener(Event.CHANGE, exclusiveTouch_changeHandler);
+				exclusiveTouch.claimTouch(this.touchPointID, this);
+				this.dispatchEventWith(FeathersEventType.BEGIN_INTERACTION);
 			}
 		}
 
@@ -2784,35 +2891,40 @@ package feathers.controls
 			var verticalInchesMoved:Number = (this._currentTouchY - this._startTouchY) / (DeviceCapabilities.dpi / Starling.contentScaleFactor);
 			if(this._leftDrawer && !this.isLeftDrawerDocked && horizontalInchesMoved >= this._minimumDragDistance)
 			{
-				this._startTouchX = this._currentTouchX;
-				this._isDraggingLeftDrawer = true;
 				this._isDragging = true;
+				this._isDraggingLeftDrawer = true;
 				this._leftDrawer.visible = true;
 				this.applyLeftClipRect();
 			}
 			else if(this._rightDrawer && !this.isRightDrawerDocked && horizontalInchesMoved <= -this._minimumDragDistance)
 			{
-				this._startTouchX = this._currentTouchX;
-				this._isDraggingRightDrawer = true;
 				this._isDragging = true;
+				this._isDraggingRightDrawer = true;
 				this._rightDrawer.visible = true;
 				this.applyRightClipRect();
 			}
 			else if(this._topDrawer && !this.isTopDrawerDocked && verticalInchesMoved >= this._minimumDragDistance)
 			{
-				this._startTouchY = this._currentTouchY;
-				this._isDraggingTopDrawer = true;
 				this._isDragging = true;
+				this._isDraggingTopDrawer = true;
 				this._topDrawer.visible = true;
 				this.applyTopClipRect();
 			}
 			else if(this._bottomDrawer && !this.isBottomDrawerDocked && verticalInchesMoved <= -this._minimumDragDistance)
 			{
-				this._startTouchY = this._currentTouchY;
-				this._isDraggingBottomDrawer = true;
 				this._isDragging = true;
+				this._isDraggingBottomDrawer = true;
 				this._bottomDrawer.visible = true;
 				this.applyBottomClipRect();
+			}
+
+			if(this._isDragging)
+			{
+				this._startTouchY = this._currentTouchY;
+				var exclusiveTouch:ExclusiveTouch = ExclusiveTouch.forStage(this.stage);
+				exclusiveTouch.claimTouch(this.touchPointID, this);
+				exclusiveTouch.removeEventListener(Event.CHANGE, exclusiveTouch_changeHandler);
+				this.dispatchEventWith(FeathersEventType.BEGIN_INTERACTION);
 			}
 		}
 
@@ -2893,6 +3005,7 @@ package feathers.controls
 			}
 			if(isRightDrawerDocked)
 			{
+				this._rightDrawer.x = contentX + this._content.width;
 				this._rightDrawer.y = contentY;
 			}
 			if(isBottomDrawerDocked)
@@ -2905,6 +3018,7 @@ package feathers.controls
 				{
 					this._bottomDrawer.x = contentX;
 				}
+				this._bottomDrawer.y = contentY + this._content.height;
 			}
 			if(isLeftDrawerDocked)
 			{
@@ -3029,9 +3143,11 @@ package feathers.controls
 					if(this._isDragging)
 					{
 						this.handleDragEnd();
+						this.dispatchEventWith(FeathersEventType.END_INTERACTION);
 					}
 					else
 					{
+						ExclusiveTouch.forStage(this.stage).removeEventListener(Event.CHANGE, exclusiveTouch_changeHandler);
 						if(this.isTopDrawerOpen || this.isRightDrawerOpen || this.isBottomDrawerOpen || this.isLeftDrawerOpen)
 						{
 							//there is no drag, so we may have a tap
@@ -3056,24 +3172,28 @@ package feathers.controls
 		/**
 		 * @private
 		 */
+		protected function exclusiveTouch_changeHandler(event:Event, touchID:int):void
+		{
+			if(this.touchPointID < 0 || this.touchPointID != touchID || this._isDragging)
+			{
+				return;
+			}
+
+			var exclusiveTouch:ExclusiveTouch = ExclusiveTouch.forStage(this.stage);
+			if(exclusiveTouch.getClaim(touchID) == this)
+			{
+				return;
+			}
+
+			this.touchPointID = -1;
+
+		}
+
+		/**
+		 * @private
+		 */
 		protected function stage_resizeHandler(event:ResizeEvent):void
 		{
-			if(this.isTopDrawerDocked)
-			{
-				this._isTopDrawerOpen = false;
-			}
-			if(this.isRightDrawerDocked)
-			{
-				this._isRightDrawerOpen = false;
-			}
-			if(this.isBottomDrawerDocked)
-			{
-				this._isBottomDrawerOpen = false;
-			}
-			if(this.isLeftDrawerDocked)
-			{
-				this._isLeftDrawerOpen = false;
-			}
 			this.invalidate(INVALIDATION_FLAG_SIZE);
 		}
 
