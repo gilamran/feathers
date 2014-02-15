@@ -8,6 +8,7 @@ accordance with the terms of the accompanying license agreement.
 package feathers.controls.popups
 {
 	import feathers.core.IFeathersControl;
+	import feathers.core.IValidating;
 	import feathers.core.PopUpManager;
 	import feathers.events.FeathersEventType;
 	import feathers.utils.display.getDisplayObjectDepthFromStage;
@@ -57,11 +58,19 @@ package feathers.controls.popups
 		/**
 		 * @inheritDoc
 		 */
+		public function get isOpen():Boolean
+		{
+			return this.content !== null;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function open(content:DisplayObject, source:DisplayObject):void
 		{
-			if(this.content)
+			if(this.isOpen)
 			{
-				throw new IllegalOperationError("Pop-up content is already defined.");
+				throw new IllegalOperationError("Pop-up content is already open. Close the previous content before opening new content.");
 			}
 
 			this.content = content;
@@ -86,7 +95,7 @@ package feathers.controls.popups
 		 */
 		public function close():void
 		{
-			if(!this.content)
+			if(!this.isOpen)
 			{
 				return;
 			}
@@ -118,9 +127,9 @@ package feathers.controls.popups
 		{
 			const globalOrigin:Rectangle = this.source.getBounds(Starling.current.stage);
 
-			if(this.source is IFeathersControl)
+			if(this.source is IValidating)
 			{
-				IFeathersControl(this.source).validate();
+				IValidating(this.source).validate();
 			}
 			if(this.content is IFeathersControl)
 			{

@@ -12,6 +12,7 @@ package feathers.controls.renderers
 	import feathers.core.FeathersControl;
 	import feathers.core.IFeathersControl;
 	import feathers.core.ITextRenderer;
+	import feathers.core.IValidating;
 	import feathers.core.PropertyProxy;
 
 	import starling.display.DisplayObject;
@@ -780,10 +781,9 @@ package feathers.controls.renderers
 		 *
 		 * <p>If the subcomponent has its own subcomponents, their properties
 		 * can be set too, using attribute <code>&#64;</code> notation. For example,
-		 * to set the skin on the thumb of a <code>SimpleScrollBar</code>
-		 * which is in a <code>Scroller</code> which is in a <code>List</code>,
-		 * you can use the following syntax:</p>
-		 * <pre>list.scrollerProperties.&#64;verticalScrollBarProperties.&#64;thumbProperties.defaultSkin = new Image(texture);</pre>
+		 * to set the skin on the thumb which is in a <code>SimpleScrollBar</code>,
+		 * which is in a <code>List</code>, you can use the following syntax:</p>
+		 * <pre>list.verticalScrollBarProperties.&#64;thumbProperties.defaultSkin = new Image(texture);</pre>
 		 *
 		 * <p>In the following example, a custom content label properties are
 		 * customized:</p>
@@ -1296,9 +1296,9 @@ package feathers.controls.renderers
 			{
 				this.content.height = this.explicitHeight - this._paddingTop - this._paddingBottom;
 			}
-			if(this.content is IFeathersControl)
+			if(this.content is IValidating)
 			{
-				IFeathersControl(this.content).validate();
+				IValidating(this.content).validate();
 			}
 			var newWidth:Number = this.explicitWidth;
 			var newHeight:Number = this.explicitHeight;
