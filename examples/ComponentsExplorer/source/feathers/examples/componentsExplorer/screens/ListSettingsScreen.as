@@ -19,7 +19,7 @@ package feathers.examples.componentsExplorer.screens
 	{
 		public function ListSettingsScreen()
 		{
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
+			super();
 		}
 
 		public var settings:ListSettings;
@@ -31,8 +31,11 @@ package feathers.examples.componentsExplorer.screens
 		private var _allowMultipleSelectionToggle:ToggleSwitch;
 		private var _hasElasticEdgesToggle:ToggleSwitch;
 
-		protected function initializeHandler(event:Event):void
+		override protected function initialize():void
 		{
+			//never forget to call super.initialize()
+			super.initialize();
+
 			this.layout = new AnchorLayout();
 
 			this._isSelectableToggle = new ToggleSwitch();
@@ -61,7 +64,7 @@ package feathers.examples.componentsExplorer.screens
 			this.addChild(this._list);
 
 			this._backButton = new Button();
-			this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+			this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 			this._backButton.label = "Back";
 			this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 

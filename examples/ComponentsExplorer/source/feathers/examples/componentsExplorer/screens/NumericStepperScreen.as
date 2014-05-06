@@ -26,7 +26,6 @@ package feathers.examples.componentsExplorer.screens
 		public function NumericStepperScreen()
 		{
 			super();
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
 		}
 
 		public var settings:NumericStepperSettings;
@@ -35,8 +34,11 @@ package feathers.examples.componentsExplorer.screens
 		private var _backButton:Button;
 		private var _settingsButton:Button;
 
-		protected function initializeHandler(event:Event):void
+		override protected function initialize():void
 		{
+			//never forget to call super.initialize()
+			super.initialize();
+
 			this.layout = new AnchorLayout();
 
 			this._stepper = new NumericStepper();
@@ -45,7 +47,7 @@ package feathers.examples.componentsExplorer.screens
 			this._stepper.value = 50;
 			this._stepper.step = this.settings.step;
 			this._stepper.addEventListener(Event.CHANGE, slider_changeHandler);
-			const stepperLayoutData:AnchorLayoutData = new AnchorLayoutData();
+			var stepperLayoutData:AnchorLayoutData = new AnchorLayoutData();
 			stepperLayoutData.horizontalCenter = 0;
 			stepperLayoutData.verticalCenter = 0;
 			this._stepper.layoutData = stepperLayoutData;
@@ -56,7 +58,7 @@ package feathers.examples.componentsExplorer.screens
 			if(!DeviceCapabilities.isTablet(Starling.current.nativeStage))
 			{
 				this._backButton = new Button();
-				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+				this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
 				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 

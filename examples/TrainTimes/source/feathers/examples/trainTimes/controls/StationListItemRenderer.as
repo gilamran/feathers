@@ -413,36 +413,36 @@ package feathers.examples.trainTimes.controls
 			this.addChild(this.background);
 
 			this.detailsLabel = new Label();
-			this.detailsLabel.nameList.add(CHILD_NAME_STATION_LIST_DETAILS_LABEL);
+			this.detailsLabel.styleNameList.add(CHILD_NAME_STATION_LIST_DETAILS_LABEL);
 			this.addChild(this.detailsLabel);
 
 			this.nameLabel = new Label();
-			this.nameLabel.nameList.add(CHILD_NAME_STATION_LIST_NAME_LABEL);
+			this.nameLabel.styleNameList.add(CHILD_NAME_STATION_LIST_NAME_LABEL);
 			this.addChild(this.nameLabel);
 
 			this.actionContainer = new ScrollContainer();
-			this.actionContainer.nameList.add(CHILD_NAME_STATION_LIST_ACTION_CONTAINER);
+			this.actionContainer.styleNameList.add(CHILD_NAME_STATION_LIST_ACTION_CONTAINER);
 			this.actionContainer.horizontalScrollPolicy = ScrollContainer.SCROLL_POLICY_OFF;
 			this.actionContainer.verticalScrollPolicy = ScrollContainer.SCROLL_POLICY_OFF;
 			this.actionContainer.visible = false;
 			this.addChild(this.actionContainer);
 
 			this.confirmButton = new Button();
-			this.confirmButton.nameList.add(CHILD_NAME_STATION_LIST_CONFIRM_BUTTON);
+			this.confirmButton.styleNameList.add(CHILD_NAME_STATION_LIST_CONFIRM_BUTTON);
 			this.confirmButton.addEventListener(Event.TRIGGERED, confirmButton_triggeredHandler);
 			this.actionContainer.addChild(this.confirmButton);
 
 			this.cancelButton = new Button();
-			this.cancelButton.nameList.add(CHILD_NAME_STATION_LIST_CANCEL_BUTTON);
+			this.cancelButton.styleNameList.add(CHILD_NAME_STATION_LIST_CANCEL_BUTTON);
 			this.cancelButton.addEventListener(Event.TRIGGERED, cancelButton_triggeredHandler);
 			this.actionContainer.addChild(this.cancelButton);
 		}
 
 		override protected function draw():void
 		{
-			const dataInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_DATA);
-			const selectionInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_SELECTED);
-			const stylesInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_STYLES);
+			var dataInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_DATA);
+			var selectionInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_SELECTED);
+			var stylesInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_STYLES);
 			var sizeInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_SIZE);
 
 			if(stylesInvalid)
@@ -465,8 +465,8 @@ package feathers.examples.trainTimes.controls
 
 		protected function autoSizeIfNeeded():Boolean
 		{
-			const needsWidth:Boolean = isNaN(this.explicitWidth);
-			const needsHeight:Boolean = isNaN(this.explicitHeight);
+			var needsWidth:Boolean = isNaN(this.explicitWidth);
+			var needsHeight:Boolean = isNaN(this.explicitHeight);
 			if(!needsWidth && !needsHeight)
 			{
 				return false;
@@ -508,7 +508,7 @@ package feathers.examples.trainTimes.controls
 				}
 				this.nameLabel.text = nameLabelText;
 
-				const displayAsSelected:Boolean = this._isSelected || this._data.isDepartingFromHere;
+				var displayAsSelected:Boolean = this._isSelected || this._data.isDepartingFromHere;
 				if(this.isFirstItem)
 				{
 					this.icon.source = displayAsSelected ? this._firstSelectedIconTexture : this._firstNormalIconTexture;
@@ -568,9 +568,9 @@ package feathers.examples.trainTimes.controls
 
 			this.icon.validate();
 			this.icon.x = this._paddingLeft;
-			const leftMarginWidth:Number = this._paddingLeft + this.icon.width + this._gap;
-			const availableLabelWidth:Number = this.actualWidth - this._paddingRight - leftMarginWidth;
-			const availableLabelHeight:Number = this.actualHeight - this._paddingTop - this._paddingBottom;
+			var leftMarginWidth:Number = this._paddingLeft + this.icon.width + this._gap;
+			var availableLabelWidth:Number = this.actualWidth - this._paddingRight - leftMarginWidth;
+			var availableLabelHeight:Number = this.actualHeight - this._paddingTop - this._paddingBottom;
 
 			this.actionContainer.width = availableLabelWidth;
 
@@ -578,7 +578,7 @@ package feathers.examples.trainTimes.controls
 			this.detailsLabel.validate();
 			this.actionContainer.validate();
 
-			const displayAsSelected:Boolean = this._isSelected || this._data.isDepartingFromHere;
+			var displayAsSelected:Boolean = this._isSelected || this._data.isDepartingFromHere;
 			if((displayAsSelected && this.isSelectionWaitingToBeAnimated) ||
 				(!displayAsSelected && !this.isSelectionWaitingToBeAnimated))
 			{
@@ -664,7 +664,7 @@ package feathers.examples.trainTimes.controls
 				return;
 			}
 
-			const touches:Vector.<Touch> = event.getTouches(this, null, HELPER_TOUCHES_VECTOR);
+			var touches:Vector.<Touch> = event.getTouches(this, null, HELPER_TOUCHES_VECTOR);
 			if(touches.length == 0)
 			{
 				//end of hover

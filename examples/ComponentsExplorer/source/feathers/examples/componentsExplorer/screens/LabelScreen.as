@@ -5,6 +5,7 @@ package feathers.examples.componentsExplorer.screens
 	import feathers.controls.PanelScreen;
 	import feathers.events.FeathersEventType;
 	import feathers.layout.VerticalLayout;
+	import feathers.skins.IStyleProvider;
 	import feathers.system.DeviceCapabilities;
 
 	import starling.core.Starling;
@@ -15,10 +16,11 @@ package feathers.examples.componentsExplorer.screens
 
 	public class LabelScreen extends PanelScreen
 	{
+		public static var styleProvider:IStyleProvider;
+
 		public function LabelScreen()
 		{
 			super();
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
 		}
 
 		private var _normalLabel:Label;
@@ -28,15 +30,15 @@ package feathers.examples.componentsExplorer.screens
 
 		private var _backButton:Button;
 
-		protected function initializeHandler(event:Event):void
+		override protected function get defaultStyleProvider():IStyleProvider
 		{
-			const verticalLayout:VerticalLayout = new VerticalLayout();
-			verticalLayout.horizontalAlign = VerticalLayout.HORIZONTAL_ALIGN_CENTER;
-			verticalLayout.verticalAlign = VerticalLayout.VERTICAL_ALIGN_TOP;
-			verticalLayout.padding = 20 * this.dpiScale;
-			verticalLayout.gap = 16 * this.dpiScale;
-			verticalLayout.manageVisibility = true;
-			this.layout = verticalLayout;
+			return LabelScreen.styleProvider;
+		}
+
+		override protected function initialize():void
+		{
+			//never forget to call super.initialize()
+			super.initialize();
 
 			this._normalLabel = new Label();
 			this._normalLabel.text = "This is a normal label.";
@@ -48,12 +50,12 @@ package feathers.examples.componentsExplorer.screens
 			this.addChild(this._disabledLabel);
 
 			this._headingLabel = new Label();
-			this._headingLabel.nameList.add(Label.ALTERNATE_NAME_HEADING);
+			this._headingLabel.styleNameList.add(Label.ALTERNATE_NAME_HEADING);
 			this._headingLabel.text = "A heading label is for larger, more important text.";
 			this.addChild(this._headingLabel);
 
 			this._detailLabel = new Label();
-			this._detailLabel.nameList.add(Label.ALTERNATE_NAME_DETAIL);
+			this._detailLabel.styleNameList.add(Label.ALTERNATE_NAME_DETAIL);
 			this._detailLabel.text = "While a detail label is for smaller, less important text.";
 			this.addChild(this._detailLabel);
 
@@ -62,7 +64,7 @@ package feathers.examples.componentsExplorer.screens
 			if(!DeviceCapabilities.isTablet(Starling.current.nativeStage))
 			{
 				this._backButton = new Button();
-				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+				this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
 				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 

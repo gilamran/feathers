@@ -44,7 +44,7 @@ package feathers.examples.trainTimes.screens
 		override protected function initialize():void
 		{
 			this._stationList = new List();
-			this._stationList.nameList.add(CHILD_NAME_STATION_LIST);
+			this._stationList.styleNameList.add(CHILD_NAME_STATION_LIST);
 			this._stationList.dataProvider = new ListCollection(
 			[
 				new StationData("Ten Stone Road"),
@@ -108,7 +108,7 @@ package feathers.examples.trainTimes.screens
 		private function onBackButton():void
 		{
 			this.selectedDepartureStation.isDepartingFromHere = false;
-			const index:int = this._stationList.dataProvider.getItemIndex(this.selectedDepartureStation);
+			var index:int = this._stationList.dataProvider.getItemIndex(this.selectedDepartureStation);
 			this._stationList.dataProvider.updateItemAt(index);
 			this._stationList.selectedItem = this.selectedDepartureStation;
 			this.selectedDepartureStation = null;

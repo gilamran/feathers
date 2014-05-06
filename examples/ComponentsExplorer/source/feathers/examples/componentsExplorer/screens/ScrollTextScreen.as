@@ -18,14 +18,17 @@ package feathers.examples.componentsExplorer.screens
 	{
 		public function ScrollTextScreen()
 		{
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
+			super();
 		}
 
 		private var _backButton:Button;
 		private var _scrollText:ScrollText;
 
-		protected function initializeHandler():void
+		override protected function initialize():void
 		{
+			//never forget to call super.initialize()
+			super.initialize();
+
 			this.layout = new AnchorLayout();
 
 			this._scrollText = new ScrollText();
@@ -38,7 +41,7 @@ package feathers.examples.componentsExplorer.screens
 			if(!DeviceCapabilities.isTablet(Starling.current.nativeStage))
 			{
 				this._backButton = new Button();
-				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+				this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
 				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 

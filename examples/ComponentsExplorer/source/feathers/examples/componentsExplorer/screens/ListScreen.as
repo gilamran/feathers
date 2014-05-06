@@ -26,7 +26,6 @@ package feathers.examples.componentsExplorer.screens
 		public function ListScreen()
 		{
 			super();
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
 		}
 
 		public var settings:ListSettings;
@@ -34,9 +33,12 @@ package feathers.examples.componentsExplorer.screens
 		private var _list:List;
 		private var _backButton:Button;
 		private var _settingsButton:Button;
-		
-		protected function initializeHandler(event:Event):void
+
+		override protected function initialize():void
 		{
+			//never forget to call super.initialize()
+			super.initialize();
+
 			this.layout = new AnchorLayout();
 
 			var items:Array = [];
@@ -79,7 +81,7 @@ package feathers.examples.componentsExplorer.screens
 			if(!DeviceCapabilities.isTablet(Starling.current.nativeStage))
 			{
 				this._backButton = new Button();
-				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+				this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
 				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 
@@ -118,7 +120,7 @@ package feathers.examples.componentsExplorer.screens
 
 		private function list_changeHandler(event:Event):void
 		{
-			const selectedIndices:Vector.<int> = this._list.selectedIndices;
+			var selectedIndices:Vector.<int> = this._list.selectedIndices;
 			trace("List onChange:", selectedIndices.length > 0 ? selectedIndices : this._list.selectedIndex);
 		}
 	}

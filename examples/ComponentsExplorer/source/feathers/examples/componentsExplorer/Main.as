@@ -10,7 +10,6 @@ package feathers.examples.componentsExplorer
 	import feathers.examples.componentsExplorer.data.ListSettings;
 	import feathers.examples.componentsExplorer.data.NumericStepperSettings;
 	import feathers.examples.componentsExplorer.data.SliderSettings;
-	import feathers.examples.componentsExplorer.data.TextInputSettings;
 	import feathers.examples.componentsExplorer.screens.AlertScreen;
 	import feathers.examples.componentsExplorer.screens.ButtonGroupScreen;
 	import feathers.examples.componentsExplorer.screens.ButtonScreen;
@@ -33,11 +32,10 @@ package feathers.examples.componentsExplorer
 	import feathers.examples.componentsExplorer.screens.SliderSettingsScreen;
 	import feathers.examples.componentsExplorer.screens.TabBarScreen;
 	import feathers.examples.componentsExplorer.screens.TextInputScreen;
-	import feathers.examples.componentsExplorer.screens.TextInputSettingsScreen;
 	import feathers.examples.componentsExplorer.screens.ToggleScreen;
+	import feathers.examples.componentsExplorer.themes.ComponentsExplorerTheme;
 	import feathers.motion.transitions.ScreenSlidingStackTransitionManager;
 	import feathers.system.DeviceCapabilities;
-	import feathers.themes.MetalWorksMobileTheme;
 
 	import starling.core.Starling;
 	import starling.events.Event;
@@ -67,7 +65,6 @@ package feathers.examples.componentsExplorer
 		private static const SLIDER_SETTINGS:String = "sliderSettings";
 		private static const TAB_BAR:String = "tabBar";
 		private static const TEXT_INPUT:String = "textInput";
-		private static const TEXT_INPUT_SETTINGS:String = "textInputSettings";
 		private static const TOGGLES:String = "toggles";
 
 		private static const MAIN_MENU_EVENTS:Object =
@@ -105,7 +102,7 @@ package feathers.examples.componentsExplorer
 		{
 			EmbeddedAssets.initialize();
 
-			new MetalWorksMobileTheme();
+			new ComponentsExplorerTheme();
 			
 			this._navigator = new ScreenNavigator();
 			this.content = this._navigator;
@@ -136,7 +133,7 @@ package feathers.examples.componentsExplorer
 				complete: MAIN_MENU
 			}));
 
-			const sliderSettings:SliderSettings = new SliderSettings();
+			var sliderSettings:SliderSettings = new SliderSettings();
 			this._navigator.addScreen(SLIDER, new ScreenNavigatorItem(SliderScreen,
 			{
 				complete: MAIN_MENU,
@@ -159,7 +156,7 @@ package feathers.examples.componentsExplorer
 				complete: MAIN_MENU
 			}));
 
-			const groupedListSettings:GroupedListSettings = new GroupedListSettings();
+			var groupedListSettings:GroupedListSettings = new GroupedListSettings();
 			this._navigator.addScreen(GROUPED_LIST, new ScreenNavigatorItem(GroupedListScreen,
 			{
 				complete: MAIN_MENU,
@@ -177,7 +174,7 @@ package feathers.examples.componentsExplorer
 				settings: groupedListSettings
 			}));
 
-			const itemRendererSettings:ItemRendererSettings = new ItemRendererSettings();
+			var itemRendererSettings:ItemRendererSettings = new ItemRendererSettings();
 			this._navigator.addScreen(ITEM_RENDERER, new ScreenNavigatorItem(ItemRendererScreen,
 			{
 				complete: MAIN_MENU,
@@ -200,7 +197,7 @@ package feathers.examples.componentsExplorer
 				complete: MAIN_MENU
 			}));
 
-			const listSettings:ListSettings = new ListSettings();
+			var listSettings:ListSettings = new ListSettings();
 			this._navigator.addScreen(LIST, new ScreenNavigatorItem(ListScreen,
 			{
 				complete: MAIN_MENU,
@@ -218,7 +215,7 @@ package feathers.examples.componentsExplorer
 				settings: listSettings
 			}));
 
-			const numericStepperSettings:NumericStepperSettings = new NumericStepperSettings();
+			var numericStepperSettings:NumericStepperSettings = new NumericStepperSettings();
 			this._navigator.addScreen(NUMERIC_STEPPER, new ScreenNavigatorItem(NumericStepperScreen,
 			{
 				complete: MAIN_MENU,
@@ -251,21 +248,9 @@ package feathers.examples.componentsExplorer
 				complete: MAIN_MENU
 			}));
 
-			const textInputSettings:TextInputSettings = new TextInputSettings();
 			this._navigator.addScreen(TEXT_INPUT, new ScreenNavigatorItem(TextInputScreen,
 			{
-				complete: MAIN_MENU,
-				showSettings: TEXT_INPUT_SETTINGS
-			},
-			{
-				settings: textInputSettings
-			}));
-			this._navigator.addScreen(TEXT_INPUT_SETTINGS, new ScreenNavigatorItem(TextInputSettingsScreen,
-			{
-				complete: TEXT_INPUT
-			},
-			{
-				settings: textInputSettings
+				complete: MAIN_MENU
 			}));
 
 			this._navigator.addScreen(PROGRESS_BAR, new ScreenNavigatorItem(ProgressBarScreen,
@@ -299,7 +284,7 @@ package feathers.examples.componentsExplorer
 
 		private function mainMenuEventHandler(event:Event):void
 		{
-			const screenName:String = MAIN_MENU_EVENTS[event.type];
+			var screenName:String = MAIN_MENU_EVENTS[event.type];
 			//because we're controlling the navigation externally, it doesn't
 			//make sense to transition or keep a history
 			this._transitionManager.clearStack();

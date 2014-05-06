@@ -3,9 +3,11 @@ package feathers.examples.componentsExplorer.screens
 	import feathers.controls.Button;
 	import feathers.controls.ImageLoader;
 	import feathers.controls.PanelScreen;
+	import feathers.controls.ToggleButton;
 	import feathers.events.FeathersEventType;
 	import feathers.examples.componentsExplorer.data.EmbeddedAssets;
 	import feathers.layout.VerticalLayout;
+	import feathers.skins.IStyleProvider;
 	import feathers.system.DeviceCapabilities;
 
 	import starling.core.Starling;
@@ -17,17 +19,17 @@ package feathers.examples.componentsExplorer.screens
 
 	public class ButtonScreen extends PanelScreen
 	{
+		public static var styleProvider:IStyleProvider;
 		
 		public function ButtonScreen()
 		{
 			super();
-			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandler);
 		}
 
 		private var _normalButton:Button;
 		private var _disabledButton:Button;
 		private var _iconButton:Button;
-		private var _toggleButton:Button;
+		private var _toggleButton:ToggleButton;
 		private var _callToActionButton:Button;
 		private var _quietButton:Button;
 		private var _dangerButton:Button;
@@ -37,16 +39,16 @@ package feathers.examples.componentsExplorer.screens
 		private var _backButton:Button;
 		
 		private var _icon:ImageLoader;
-		
-		protected function initializeHandler(event:Event):void
+
+		override protected function get defaultStyleProvider():IStyleProvider
 		{
-			const verticalLayout:VerticalLayout = new VerticalLayout();
-			verticalLayout.horizontalAlign = VerticalLayout.HORIZONTAL_ALIGN_CENTER;
-			verticalLayout.verticalAlign = VerticalLayout.VERTICAL_ALIGN_TOP;
-			verticalLayout.padding = 20 * this.dpiScale;
-			verticalLayout.gap = 16 * this.dpiScale;
-			verticalLayout.manageVisibility = true;
-			this.layout = verticalLayout;
+			return ButtonScreen.styleProvider;
+		}
+		
+		override protected function initialize():void
+		{
+			//never forget to call super.initialize()
+			super.initialize();
 			
 			this._normalButton = new Button();
 			this._normalButton.label = "Normal Button";
@@ -70,35 +72,34 @@ package feathers.examples.componentsExplorer.screens
 			this._iconButton.defaultIcon = this._icon;
 			this.addChild(this._iconButton);
 
-			this._toggleButton = new Button();
+			this._toggleButton = new ToggleButton();
 			this._toggleButton.label = "Toggle Button";
-			this._toggleButton.isToggle = true;
 			this._toggleButton.isSelected = true;
 			this._toggleButton.addEventListener(Event.CHANGE, toggleButton_changeHandler);
 			this.addChild(this._toggleButton);
 
 			this._callToActionButton = new Button();
-			this._callToActionButton.nameList.add(Button.ALTERNATE_NAME_CALL_TO_ACTION_BUTTON);
+			this._callToActionButton.styleNameList.add(Button.ALTERNATE_NAME_CALL_TO_ACTION_BUTTON);
 			this._callToActionButton.label = "Call to Action Button";
 			this.addChild(this._callToActionButton);
 
 			this._dangerButton = new Button();
-			this._dangerButton.nameList.add(Button.ALTERNATE_NAME_DANGER_BUTTON);
+			this._dangerButton.styleNameList.add(Button.ALTERNATE_NAME_DANGER_BUTTON);
 			this._dangerButton.label = "Danger Button";
 			this.addChild(this._dangerButton);
 
 			this._sampleBackButton = new Button();
-			this._sampleBackButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+			this._sampleBackButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 			this._sampleBackButton.label = "Back Button";
 			this.addChild(this._sampleBackButton);
 
 			this._forwardButton = new Button();
-			this._forwardButton.nameList.add(Button.ALTERNATE_NAME_FORWARD_BUTTON);
+			this._forwardButton.styleNameList.add(Button.ALTERNATE_NAME_FORWARD_BUTTON);
 			this._forwardButton.label = "Forward Button";
 			this.addChild(this._forwardButton);
 
 			this._quietButton = new Button();
-			this._quietButton.nameList.add(Button.ALTERNATE_NAME_QUIET_BUTTON);
+			this._quietButton.styleNameList.add(Button.ALTERNATE_NAME_QUIET_BUTTON);
 			this._quietButton.label = "Quiet Button";
 			this.headerProperties.rightItems = new <DisplayObject>
 			[
@@ -110,7 +111,7 @@ package feathers.examples.componentsExplorer.screens
 			if(!DeviceCapabilities.isTablet(Starling.current.nativeStage))
 			{
 				this._backButton = new Button();
-				this._backButton.nameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
+				this._backButton.styleNameList.add(Button.ALTERNATE_NAME_BACK_BUTTON);
 				this._backButton.label = "Back";
 				this._backButton.addEventListener(Event.TRIGGERED, backButton_triggeredHandler);
 
